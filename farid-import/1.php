@@ -2,6 +2,8 @@
 require_once '../config.php';
 require_once '../simplehtmldom/simple_html_dom.php';
 
+date_default_timezone_set('Australia/Sydney');
+
 $statement = $pdo->prepare('SELECT * FROM location WHERE sourceId = ? OR sourceId = ?');
 $statement->execute(array(226,227));
 
