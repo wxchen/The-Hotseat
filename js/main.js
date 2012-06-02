@@ -1,5 +1,5 @@
 var MAP_ASPECT_RATIO = 1.0;
-var MARKER_SIZE = 1.0;
+var MARKER_SIZE = 0.5;
 var JSON_URL = 'api/index.php';
 var DEFAULT_SOURCE_ID = 226;
 
@@ -48,21 +48,31 @@ function drawMarkers(map, locationData)
 			parseFloat(this.latitude) + ((MARKER_SIZE * MAP_ASPECT_RATIO) / 2),
 			parseFloat(this.longitude) + (MARKER_SIZE / 2));
 		var bounds = new google.maps.LatLngBounds(southWestLatLng, northEastLatLng);
-		addMarker(map, bounds);
+		
+		var value = MathUtils.GetRandomInt(0, 100);
+
+		addMarker(map, bounds, value);
 	});
 }
 
-function addMarker(map, bounds)
+/**
+ * value is 0-100
+ */
+function addMarker(map, bounds, value)
 {
+	var hue = MathUtils.Map(value, 0, 100, 60, 0);
+	var colour = ColourUtils.HSVToRGB(hue, 100, 100);
+	colour = ColourUtils.RGBToHex(colour.r, colour.g, colour.b);
+
     var rectangle = new google.maps.Rectangle();
 	var rectOptions = {
         map: map,
         bounds: bounds,
-        strokeColor: '#FF0000',
+        strokeColor: colour,
         strokeOpacity: 1.0,
         strokeWeight: 0.2,
-        fillColor: '#FF0000',
-        fillOpacity: 0.5
+        fillColor: colour,
+        fillOpacity: 0.8
       };
 
 	rectangle.setOptions(rectOptions);
