@@ -119,7 +119,7 @@ var Sprite3D = Sprite3D || {
 	},
 	
 	/********* [PUBLIC STATIC] box() ***********/
-	box: function(width,height,depth,idOrClassName) {
+	box: function(width,height,depth,idOrClassName,color) {
 		// init if needed
 		if ( !this._isInit ) this._init();
 		
