@@ -2,58 +2,31 @@
 require_once '../config.php';
 require_once '../simplehtmldom/simple_html_dom.php';
 
-$statement = $pdo->prepare('SELECT * FROM location WHERE sourceId = ? OR sourceId = ?');
-$statement->execute(array(226,227));
+$importId = 227;
+$importName = "Australian Climate Observations Reference Network - Surface Air Temperature";
+$importBaseUrl = "http://www.bom.gov.au";
+$importPath = "/climate/change/acorn-sat";
 
-$rows = $statement->fetchAll();
-$file = fopen('data/1.sql','a+');
+$text = file_get_contents($importBaseUrl.$importPath);
+$html = str_get_html($text);
 
-foreach($rows as $row)
+$tableRows = $html->find('#acorn-sat-table tr');
+
+foreach($tableRows as $rowIndex => $row)
 {
-	set_time_limit(0);
+	if (!$rowIndex)
+		continue;
 	
-	$sql = "INSERT INTO locationValue(locationId,value,valueDate) VALUES";
+	$stationName = $row->find('td',1)->plaintext;
+	$latitude = $row->find('td',2)->plaintext;
+	$longitude = $row->find('td',3)->plaintext; 
+	$elevation = $row->find('td',4)->plaintext;
 	
-	$id = $row['id'];
-	$sourceId = $row['sourceId'];
-	$name = $row['name'];
-	$url = $row['locationSourceUrl'];
-	$filename = 'data/'.$sourceId.'/'.$id;
+	$minDataUrl = $importBaseUrl . $row->find('td a',0)->href;
+	$maxDataUrl = $importBaseUrl . $row->find('td a',1)->href;
 	
-	$string = file_get_contents($filename);
-	$csv = explode("\n",$string);
+	$statement = $pdo->prepare('INSERT INTO location(sourceId,name,latitude,longitude,locationSourceUrl) VALUES(?,?,?,?,?)');
+	$statement->execute(array($importId,$stationName,$latitude,$longitude,$maxDataUrl));
 	
-	foreach($csv as $index => $entry)
-	{
-		if (!$index)
-			continue;
-		
-		$entry = trim($entry);
-		$bits = explode(' ',$entry);
-		
-		$dateString = $bits[0];
-
-		$month = substr($dateString,4,2);
-		$day = substr($dateString,6,2);
-		$year = substr($dateString,0,4);
-
-		$date = mktime(0,0,0,$month,$day,$year);
-		$temp = end($bits);
-		
-		if (!empty($dateString) && ($temp > -100) && ($temp < 100))
-		{
-			$sql .= "($id,$temp,FROM_UNIXTIME($date)),";
-		}
-	}
-	
-	$sql = substr($sql,0,-1) . ";\n";
-	
-	echo "Processing " . count($csv) . " items for $name - $id\n";	
-/*
-	
-	$statement = $pdo->query($sql);
-	var_dump($pdo->errorInfo());
-*/
-
-	fwrite($file,$sql);
+	echo "Reading max data for $stationName ($latitude, $longitude)\n";
 }
