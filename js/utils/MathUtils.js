@@ -20,15 +20,21 @@ MathUtils.Map = function(value, origMin, origMax, newMin, newMax)
 	{
 		newValue = newMin - newValue;
 	}
-	console.log(newValue);
+
 	return newValue;
 }
 
-MathUtils.ToHex = function(n)
+MathUtils.ToHex = function(number)
 {
-	n = parseInt(n,10);
-	if (isNaN(n)) return "00";
-	n = Math.max(0,Math.min(n,255));
-	return "0123456789ABCDEF".charAt((n-n%16)/16)
-		+ "0123456789ABCDEF".charAt(n%16);
+	number = parseInt(number, 10);
+	
+	if (isNaN(number))
+	{
+		return '00';
+	}
+
+	number = Math.max(0, Math.min(number, 255));
+
+	return '0123456789ABCDEF'.charAt((number - number % 16) / 16)
+		+ '0123456789ABCDEF'.charAt(number % 16);
 }
