@@ -5,6 +5,7 @@ $sourceId = $_REQUEST['sourceid'];
 
 $stmt = $pdo->prepare('select 
 	location_value.*,
+	location.name,
 	location.latitude,
 	location.longitude
 	from location_value 
