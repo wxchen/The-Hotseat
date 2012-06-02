@@ -14,7 +14,7 @@ $stmt->execute(array($sourceId));
 
 $locations = array();
 
-while ($row = $stmt->fetch())
+while ($row = $stmt->fetch(PDO::FETCH_ASSOC))
 {
 	$locations[] = $row;
 }
