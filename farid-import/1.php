@@ -2,31 +2,50 @@
 require_once '../config.php';
 require_once '../simplehtmldom/simple_html_dom.php';
 
-$importId = 227;
-$importName = "Australian Climate Observations Reference Network - Surface Air Temperature";
-$importBaseUrl = "http://www.bom.gov.au";
-$importPath = "/climate/change/acorn-sat";
+$statement = $pdo->prepare('SELECT * FROM location WHERE sourceId = ? OR sourceId = ?');
+$statement->execute(array(226,227));
 
-$text = file_get_contents($importBaseUrl.$importPath);
-$html = str_get_html($text);
+$rows = $statement->fetchAll();
 
-$tableRows = $html->find('#acorn-sat-table tr');
-
-foreach($tableRows as $rowIndex => $row)
+foreach($rows as $row)
 {
-	if (!$rowIndex)
-		continue;
+	$id = $row['id'];
+	$sourceId = $row['sourceId'];
+	$name = $row['name'];
+	$url = $row['locationSourceUrl'];
 	
-	$stationName = $row->find('td',1)->plaintext;
-	$latitude = $row->find('td',2)->plaintext;
-	$longitude = $row->find('td',3)->plaintext; 
-	$elevation = $row->find('td',4)->plaintext;
+	echo "Processing $name - $id - $url\n";	
 	
-	$minDataUrl = $importBaseUrl . $row->find('td a',0)->href;
-	$maxDataUrl = $importBaseUrl . $row->find('td a',1)->href;
+	$string = file_get_contents($url);
+	file_put_contents('data/'.$sourceId.'/'.$id,$string);
+	/*
+
 	
-	$statement = $pdo->prepare('INSERT INTO location(sourceId,name,latitude,longitude,locationSourceUrl) VALUES(?,?,?,?,?)');
-	$statement->execute(array($importId,$stationName,$latitude,$longitude,$maxDataUrl));
+	$string = file_get_contents($url);
+
+	$csv = explode("\n",$string);
 	
-	echo "Reading max data for $stationName ($latitude, $longitude)\n";
+	$statement = $pdo->prepare('INSERT INTO locationValue(locationId,value,valueDate) VALUES(?,?,?)');
+	
+	foreach($csv as $index => $entry)
+	{
+		if (!$index)
+			continue;
+		
+		$entry = trim($entry);
+		$bits = explode(' ',$entry);
+		
+		$dateString = $bits[0];
+
+		$month = substr($dateString,4,2);
+		$day = substr($dateString,6,2);
+		$year = substr($dateString,0,4);
+
+		$date = mktime(0,0,0,$month,$day,$year);
+		$temp = end($bits);
+		
+		if (!empty($dateString) && ($temp > -100) && ($temp < 100))
+			$statement->execute(array($id,$temp,$date));
+	}
+*/
 }
