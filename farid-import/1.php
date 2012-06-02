@@ -6,26 +6,22 @@ $statement = $pdo->prepare('SELECT * FROM location WHERE sourceId = ? OR sourceI
 $statement->execute(array(226,227));
 
 $rows = $statement->fetchAll();
+$file = fopen('data/1.sql','a+');
 
 foreach($rows as $row)
 {
+	set_time_limit(0);
+	
+	$sql = "INSERT INTO locationValue(locationId,value,valueDate) VALUES";
+	
 	$id = $row['id'];
 	$sourceId = $row['sourceId'];
 	$name = $row['name'];
 	$url = $row['locationSourceUrl'];
+	$filename = 'data/'.$sourceId.'/'.$id;
 	
-	echo "Processing $name - $id - $url\n";	
-	
-	$string = file_get_contents($url);
-	file_put_contents('data/'.$sourceId.'/'.$id,$string);
-	/*
-
-	
-	$string = file_get_contents($url);
-
+	$string = file_get_contents($filename);
 	$csv = explode("\n",$string);
-	
-	$statement = $pdo->prepare('INSERT INTO locationValue(locationId,value,valueDate) VALUES(?,?,?)');
 	
 	foreach($csv as $index => $entry)
 	{
@@ -45,7 +41,19 @@ foreach($rows as $row)
 		$temp = end($bits);
 		
 		if (!empty($dateString) && ($temp > -100) && ($temp < 100))
-			$statement->execute(array($id,$temp,$date));
+		{
+			$sql .= "($id,$temp,FROM_UNIXTIME($date)),";
+		}
 	}
+	
+	$sql = substr($sql,0,-1) . ";\n";
+	
+	echo "Processing " . count($csv) . " items for $name - $id\n";	
+/*
+	
+	$statement = $pdo->query($sql);
+	var_dump($pdo->errorInfo());
 */
+
+	fwrite($file,$sql);
 }
