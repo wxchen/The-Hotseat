@@ -4,17 +4,17 @@ require_once('../config.php');
 $sourceId = $_REQUEST['sourceid'];
 
 $stmt = $pdo->prepare('select 
-	locationValue.*,
+	location_value.*,
 	location.latitude,
 	location.longitude
-	from locationValue 
-	inner join location ON locationValue.locationId = location.id where sourceId = ?
-	order by locationValue.valueDate');
+	from location_value 
+	inner join location ON location_value.locationId = location.id where sourceId = ?
+	order by location_value.valueDate');
 $stmt->execute(array($sourceId));
 
 $locations = array();
 
-while ($row = $stmt->fetch())
+while ($row = $stmt->fetch(PDO::FETCH_ASSOC))
 {
 	$locations[] = $row;
 }
