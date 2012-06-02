@@ -1,8 +1,10 @@
 function MapView()
 {
 	var that = this;
+	var loading;
 	var map;
 	var markerToolTip;
+	var slider;
 
 	MapView.prototype.init = function()
 	{
@@ -11,17 +13,19 @@ function MapView()
 
 	function init()
 	{
-		map = initMap();
+		loading = $('#loading');
+		//map = initMap();
 		markerToolTip = initMarkerToolTip();
-		loadData(map, DEFAULT_SOURCE_ID);
+		slider = initSlider();
+		//loadData(map, DEFAULT_SOURCE_ID);
 	}
 
 	function initMap()
 	{
-		var mapLatLng = new google.maps.LatLng(-40, 134);
+		var mapLatLng = new google.maps.LatLng(-26, 133);
 
 		var mapOptions = {
-			zoom: 4,
+			zoom: 5,
 			center: mapLatLng,
 			mapTypeId: google.maps.MapTypeId.TERRAIN
 		};
@@ -35,11 +39,17 @@ function MapView()
 
 		var markerToolTip = $('.markerToolTip');
 		markerToolTip.on('mouseover', function(event) {
-			event.stopImmediatePropagation();
+			event.stopPropagation();
 			console.log('stop');
 		});
 
 		return markerToolTip;
+	}
+
+	function initSlider()
+	{
+		$('body').append('<div class="slider"></div>');
+		$('.slider').slider();
 	}
 
 	function loadData(map, sourceID)
@@ -48,16 +58,41 @@ function MapView()
 			JSON_URL,  
 			{sourceid: sourceID},  
 			function(json) {
-				drawMarkers(map, json);
+				if (json.length == 0)
+				{
+					return false;
+				}
+
+				var dataRangeStart = json[0].valueDate.split('-')[0];   // Get start year
+				var dataRangeEnd = json[json.length - 1].valueDate.split('-')[0];   // Get end year
+
+				drawMarkers(map, json, dataRangeStart);
+				loading.hide();
 			}  
 		);
 	}
 
-	function drawMarkers(map, locationData)
+	function drawMarkers(map, locationData, dataRange)
 	{
-		
+		var rangeFound = false;
 		$(locationData).each(function(index) {
 			
+			var year = this.valueDate.split('-')[0];
+
+			// Check if we have hit the start of the data range
+			if (year == dataRange)
+			{
+				rangeFound = true;
+			}
+
+			// Check if we have hit the end of the data range
+			if (rangeFound && year != dataRange)
+			{
+				return false;
+			}
+
+			console.log(this.valueDate);
+
 			var data = this;
 
 			var southWestLatLng = new google.maps.LatLng(
@@ -79,7 +114,10 @@ function MapView()
 				var scale = Math.pow(2, map.getZoom());
 				var markerBounds = this.getBounds();
 				var point = MapUtils.GetPointFromBounds(map, markerBounds);
-				var markerHeight = Math.abs(markerBounds.getSouthWest().lat() - markerBounds.getNorthEast().lat()) * scale;
+
+				var markerWorldNEPoint = map.getProjection().fromLatLngToPoint(markerBounds.getNorthEast());
+				var markerWorldSWPoint = map.getProjection().fromLatLngToPoint(markerBounds.getSouthWest());
+				var markerHeight = Math.abs(markerWorldNEPoint.y - markerWorldSWPoint.y) * scale;
 				console.log(markerHeight);
 
 				// Move the tool tip above the marker
@@ -87,6 +125,7 @@ function MapView()
 				//point.y -= (parseInt(markerToolTip.css('height'), 10) + markerHeight / 2);
 				point.y -= parseInt(markerToolTip.css('height'), 10);
 
+				// Display the marker tooltip
 				markerToolTip.css({left: point.x, top: point.y});
 				markerToolTip.text(data.name);
 			});
@@ -94,6 +133,7 @@ function MapView()
 			//
 			google.maps.event.addListener(marker, 'mouseout', function(event) {
 				event.stop();
+				// Hide the marker tooltip
 				markerToolTip.css({left: -1000, top: -1000});
 				markerToolTip.text('');
 			});

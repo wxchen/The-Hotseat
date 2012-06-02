@@ -9,6 +9,10 @@ $(document).ready(function() {
 
 function init()
 {
+	// Set height
+	$('#loading').css('height', window.innerHeight);
+	$('#mapCanvas').css('height', window.innerHeight);
+
 	var mapView = new MapView();
 	mapView.init();
 }

@@ -5,6 +5,7 @@ function MapUtils()
 MapUtils.GetPointFromBounds = function(map, bounds)
 {
 	var scale = Math.pow(2, map.getZoom());
+	
 	var mapNW = new google.maps.LatLng(
 		map.getBounds().getNorthEast().lat(),
 		map.getBounds().getSouthWest().lng()
