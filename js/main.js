@@ -14,5 +14,5 @@ function init()
 	$('#mapCanvas').css('height', window.innerHeight);
 
 	var mapView = new MapView();
-	mapView.init();
+	mapView.init('mapCanvas');
 }

@@ -1,23 +1,31 @@
 function MapView()
 {
 	var that = this;
+	var containerID;
 	var loading;
 	var map;
 	var markerToolTip;
 	var slider;
 
-	MapView.prototype.init = function()
+	MapView.prototype.init = function(containerID)
 	{
-		init();
+		init(containerID);
 	}
 
-	function init()
+	function init(containerID)
+	{
+		this.containerID = containerID;
+
+		initGUI();
+		loadData(map, DEFAULT_SOURCE_ID);
+	}
+
+	function initGUI()
 	{
 		loading = $('#loading');
-		//map = initMap();
+		map = initMap();
 		markerToolTip = initMarkerToolTip();
 		slider = initSlider();
-		//loadData(map, DEFAULT_SOURCE_ID);
 	}
 
 	function initMap()
@@ -29,8 +37,8 @@ function MapView()
 			center: mapLatLng,
 			mapTypeId: google.maps.MapTypeId.TERRAIN
 		};
-			
-		return new google.maps.Map(document.getElementById('mapCanvas'), mapOptions);
+		
+		return new google.maps.Map(document.getElementById(this.containerID), mapOptions);
 	}
 
 	function initMarkerToolTip()
@@ -48,7 +56,7 @@ function MapView()
 
 	function initSlider()
 	{
-		$('body').append('<div class="slider"></div>');
+		$('#' + this.containerID).append('<div class="slider"></div>');
 		$('.slider').slider();
 	}
 
