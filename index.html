@@ -80,8 +80,24 @@ body {
 </head>
 <body>
 	<!--<div id="loading"><span>Loading...</span></div>-->
-	<a onclick="resizeBoxes();">test</a>
-
+	<!--<a onclick="resizeBoxes();">test</a>-->
+	<h1 style="margin: 10px; font-family: Georgia; font-size: 16pt; text-align: center; ">The Hot Seat</h1>
+	<h2 style="margin: 10px; font-family: Georgia; font-size: 12pt; text-align: center; " id="set">Yearly Rainfall</h2>
+	<script type="text/javascript">
+		switch (DEFAULT_SOURCE_ID)
+		{
+			case 226:
+				$('#set').text('Avg Min Temperature');
+				break;
+			case 227:
+				$('#set').text('Avg Max Temperature');
+				break;
+			case 231:
+				$('#set').text('Yearly Rainfall');
+				break;
+		}
+	</script>
+	
 	<div id="sliderValue">Loading...</div>
 	<div id="slider"></div>
 	<input type="button" id="playPauseButton" value="Play"/>
