@@ -162,6 +162,7 @@ body {
     	this.x = x;
 	    this.y = y;
 	    this.z = z;
+	    this.updated = true;
 	}
 	
 	function addTestBoxes()
@@ -211,6 +212,25 @@ body {
 		resizeBox(boxList[index], value);
 	}
 	
+	function beginUpdates()
+	{
+		for (boxIndex in boxList)
+		{
+			boxList[boxIndex].updated = false;
+		}
+	}
+	
+	function endUpdates()
+	{
+		for (boxIndex in boxList)
+		{
+			if (!boxList[boxIndex].updated)
+			{
+				resizeBox(boxList[boxIndex], 0);
+			}
+		}
+	}
+	
 	function resizeBox(boxWrap, height)
 	{
 		var boxSize = 10;
@@ -227,6 +247,8 @@ body {
 			1,
 			height);
 		boxWrap.box.update();
+		
+		boxWrap.updated = true;
 	}
 	
 	function createBox(index, x, y, height)

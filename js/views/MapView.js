@@ -192,6 +192,8 @@ function MapView()
 
 	function drawMarkers(map, locationData, dataRange)
 	{
+		beginUpdates();
+		
 		markers2D = [];
 		var rangeFound = false;
 		var markersAdded = 0;
@@ -242,7 +244,8 @@ function MapView()
 				markersAdded++;
 			}
 		});
-
+		
+		endUpdates();
 		log(markersAdded + ' markers added');
 	}
 
