@@ -3,8 +3,38 @@ require_once '../config.php';
 
 $sourceId = 231;
 
-//// PHASE 2 CODE ////
 
+//// PHASE 4 CODE ////
+
+$statement = $pdo->prepare("SELECT * FROM location WHERE sourceId = ?");
+$statement->execute(array($sourceId));
+$locations = $statement->fetchAll();
+$total = 0;
+
+foreach($locations as $location)
+{
+	$sourceUrl = $location['locationSourceUrl'];
+	$csvFilename = str_replace(array("http://www.bom.gov.au/tmp/cdio/IDCJAC0001_",".zip"),array("data/$sourceId/csv/IDCJAC0001_","_Data12.csv"),$sourceUrl);
+
+	if (file_exists($csvFilename))
+	{
+		$total++;	
+	} 
+	else
+	{
+		$pdo->query("DELETE FROM location WHERE id = ".$location['id']);
+	}
+	
+	echo "$csvFilename\n";
+}
+
+echo "Found ".count($locations)." locations\n";
+echo "$total had corresponding CSV data\n";
+
+
+//// PHASE 3 CODE ////
+
+/*
 $zipFiles = glob('data/'.$sourceId.'/full/*.zip');
 
 if ($zipFiles)
@@ -17,13 +47,7 @@ if ($zipFiles)
 	}
 }
 
-
-
-
-
-
-
-
+*/
 
 //// PHASE 2 CODE ////
 
