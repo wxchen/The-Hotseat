@@ -213,10 +213,11 @@ function MapView()
 
 				var value = MathUtils.Map(parseFloat(data.value), self.dataMin, self.dataMax, 0, 100);
 				
-				// Create 3d box
+				// Create 3D box
 				var point = MapUtils.GetPointFromBounds(self.map, bounds);
 				createBox(data.id, point.x, point.y, value / 4);
 				
+				// Create 2D box
 				var marker2D = addMarker2D(map, bounds, value);
 				addMarkerListeners(marker2D, data);
 				markers2D.push(marker2D);
