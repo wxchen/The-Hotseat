@@ -32,7 +32,7 @@ function MapView()
 		self.sliderView = sliderView;
 
 		self.autoPlay = false;
-		self.autoPlayDelay = 100;
+		self.autoPlayDelay = 500;
 
 		initGUI();
 		loadDataFromServer(map, DEFAULT_SOURCE_ID);

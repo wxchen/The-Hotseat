@@ -107,11 +107,18 @@ body {
 	}
 	
 	// BOX //
+	var zoom = -100;
+	var zoomScale = getParameterByName('z');
+	if (zoomScale.length > 0)
+	{
+		zoom *= parseInt(zoomScale, 10);
+	}
+
 	boxContainer = Sprite3D.stage().appendChild( 
 		Sprite3D.create("boxContainer")
-			.origin( 640, 640 )
-			.position( 0,100,-600)
-			.rotation( 50,0,-30 )
+			.origin(640, 640)
+			.position(0, 100, zoom)
+			.rotation(50, 0, -30)
 			.transformString( "p rx rz ry s" )
 			.update()
 	);
