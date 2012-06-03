@@ -1,7 +1,7 @@
 var MAP_ASPECT_RATIO = 1.0;
 var MARKER_SIZE = 0.5;
 var JSON_URL = 'api/fullvalues.php';
-var DEFAULT_SOURCE_ID = 228;
+var DEFAULT_SOURCE_ID = 226;
 
 $(document).ready(function() {
 	init();
