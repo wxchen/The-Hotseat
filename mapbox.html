@@ -147,7 +147,6 @@ body {
 	var maxY = 8;
 	
 	// Testing: Create boxes
-	//createBox(440, 350, 14);
 	var boxList = new Array();
 	//addTestBoxes();
 	
@@ -168,7 +167,7 @@ body {
 		{
 			for (y = 0; y < maxY; y++)
 			{
-				createBox(p, 100 + x * 20, 200 + y * 20, 10);
+				createBox(p, 100 + x * 20, 200 + y * 20, Math.round(Math.random() * 100) / 3);
 				p++;
 			}
 		}
@@ -214,7 +213,7 @@ body {
 		
 		boxWrap.box.css(
 			"Transition",
-			"all "+(1.2+Math.random())+"s ease-in-out",
+			"all "+(1.2)+"s ease-in-out",
 			true // add a third argument and Sprite3D will add the current browser prefix to the property :)
 		)
 		.position(boxWrap.x, boxWrap.y, newZ)
@@ -238,10 +237,10 @@ body {
 			var boxSize = 10;
 			var z = height * boxSize / 2 + 2;
 			
-			var box = Sprite3D.box( boxSize, boxSize, height, ".box1", '#003300');
+			var box = Sprite3D.box( boxSize, boxSize, boxSize, ".box1", '#003300');
 			box.rotation( 0, 0, 0);
 			box.position( x, y, z);
-			//box.scale(1, 1, 5);
+			box.scale(1, 1, height);
 			
 			box.update();
 			
