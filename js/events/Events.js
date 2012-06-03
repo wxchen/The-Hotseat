@@ -1,0 +1,3 @@
+var Events = {
+  SLIDER_UPDATED : 'SLIDER_UPDATED'
+};

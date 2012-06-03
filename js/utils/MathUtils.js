@@ -9,13 +9,26 @@ MathUtils.GetRandomInt = function(min, max)
 
 MathUtils.Map = function(value, origMin, origMax, newMin, newMax)
 {
+	// Clamp values
+	if (value < origMin)
+	{
+		value = origMin;
+	}
+
+	if (value > origMax)
+	{
+		value = origMax;
+	}
+
+	// Calculate helper values
 	var origRange = Math.abs(origMax - origMin);
 	var newRange = Math.abs(newMax - newMin);
 	var scale = newRange / origRange;
 
+	// Calculate it
 	var newValue = (value * scale) + (newMin < newMax ? newMin : newMax);
 
-	//
+	// Reverse it if needed
 	if (newMax < newMin && origMin < origMax)
 	{
 		newValue = newMin - newValue;
