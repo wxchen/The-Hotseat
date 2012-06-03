@@ -47,7 +47,7 @@ function MapView()
 		var mapLatLng = new google.maps.LatLng(-26, 133);
 
 		var mapOptions = {
-			zoom: 5,
+			zoom: 4,
 			center: mapLatLng,
 			mapTypeId: google.maps.MapTypeId.TERRAIN
 		};
@@ -196,6 +196,11 @@ function MapView()
 
 				var value = MathUtils.Map(parseFloat(data.value), self.dataMin, self.dataMax, 0, 100);
 
+				// Create 3d box
+				var point = MapUtils.GetPointFromBounds(self.map, bounds);
+
+				createBox(data.id, point.x, point.y, value / 10);
+				
 				var marker = addMarker(map, bounds, value);
 				addMarkerListeners(marker, data);
 				markers2D.push(marker);
