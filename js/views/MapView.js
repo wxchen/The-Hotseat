@@ -7,7 +7,7 @@ function MapView()
 	var loading;
 	var map;
 	var markerToolTip;
-	var slider;
+	var sliderView;
 
 	var data;
 	var dataRangeStart;
@@ -15,14 +15,15 @@ function MapView()
 
 	var markers2D;
 
-	MapView.prototype.init = function(containerID)
+	MapView.prototype.init = function(containerID, sliderView)
 	{
-		init(containerID);
+		init(containerID, sliderView);
 	}
 
-	function init(containerID)
+	function init(containerID, sliderView)
 	{
-		this.containerID = containerID;
+		self.containerID = containerID;
+		self.sliderView = sliderView;
 
 		initGUI();
 		loadDataFromServer(map, DEFAULT_SOURCE_ID);
@@ -30,10 +31,13 @@ function MapView()
 
 	function initGUI()
 	{
-		loading = $('#loading');
-		map = initMap();
-		markerToolTip = initMarkerToolTip();
-		slider = initSlider();
+		self.loading = $('#loading');
+		self.map = initMap();
+		self.markerToolTip = initMarkerToolTip();
+		self.sliderView.onSliderUpdate(function(event, value) {
+			console.log(value);
+			loadData(self.data, value);
+		});
 	}
 
 	function initMap()
@@ -46,7 +50,7 @@ function MapView()
 			mapTypeId: google.maps.MapTypeId.TERRAIN
 		};
 		
-		return new google.maps.Map(document.getElementById(this.containerID), mapOptions);
+		return new google.maps.Map(document.getElementById(self.containerID), mapOptions);
 	}
 
 	function initMarkerToolTip()
@@ -62,24 +66,10 @@ function MapView()
 		return markerToolTip;
 	}
 
-	function initSlider()
-	{
-		$('#' + this.containerID).append('<div class="slider"></div>');
-		$('.slider').slider(
-			{
-				min: 0,
-				max: 100,
-				slide: function(event, ui) {
-					console.log(ui.value);
-					loadData(self.data, ui.value);
-				}
-			});
-	}
-
 	function loadDataFromServer(map, sourceID)
 	{
-		loading.show();
-
+		self.loading.show();
+		
 		$.getJSON(
 			JSON_URL,  
 			{sourceid: sourceID},  
@@ -97,14 +87,11 @@ function MapView()
 				{
 					dataRangeStart = parseInt(json[0].valueDate.split('-')[0], 10);   // Get start year
 					dataRangeEnd = parseInt(json[json.length - 1].valueDate.split('-')[0], 10);   // Get end year
-					console.log(dataRangeStart + ', ' + dataRangeEnd);
+					console.log('Range: ' + dataRangeStart + ', ' + dataRangeEnd);
 				}
-
+				
 				// Reset the slider
-				$('.slider').slider({
-					min: dataRangeStart,
-					max: dataRangeEnd
-				});
+				self.sliderView.setRange(dataRangeStart, dataRangeEnd);
 
 				if (json.length > 0)
 				{
@@ -117,13 +104,15 @@ function MapView()
 
 	function loadData(data, dataRange)
 	{
-		loading.show();
-		destroyAllMarkers(map);
-		drawMarkers(map, data, dataRange);
-		loading.hide();
+		console.log(dataRange);
+
+		self.loading.show();
+		destroyAllMarkers();
+		drawMarkers(self.map, data, dataRange);
+		self.loading.hide();
 	}
 
-	function destroyAllMarkers(map)
+	function destroyAllMarkers()
 	{
 		$(markers2D).each(function(){
 			var marker = this;
@@ -135,10 +124,9 @@ function MapView()
 
 	function drawMarkers(map, locationData, dataRange)
 	{
-		console.log(dataRange);
-		
 		markers2D = [];
 		var rangeFound = false;
+		var markersAdded = 0;
 		$(locationData).each(function(index) {
 			
 			var data = this;
@@ -178,8 +166,11 @@ function MapView()
 				var marker = addMarker(map, bounds, value);
 				addMarkerListeners(marker);
 				markers2D.push(marker);
+				markersAdded++;
 			}
 		});
+
+		console.log(markersAdded + ' markers added');
 	}
 
 	/**
