@@ -18,8 +18,8 @@ function MapView()
 
 	var markers2D;
 
-	var autoPlay = true;
-	var autoPlayDelay = 500;
+	var autoPlay;
+	var autoPlayDelay;
 
 	MapView.prototype.init = function(containerID, sliderView)
 	{
@@ -32,7 +32,7 @@ function MapView()
 		self.sliderView = sliderView;
 
 		self.autoPlay = false;
-		self.autoPlayDelay = 500;
+		self.autoPlayDelay = 100;
 
 		initGUI();
 		loadDataFromServer(map, DEFAULT_SOURCE_ID);
@@ -45,7 +45,22 @@ function MapView()
 		self.markerToolTip = initMarkerToolTip();
 		self.sliderView.onSliderUpdate(function(event, value) {
 			log(value);
+			$('#sliderValue').text(value);
 			loadData(self.data, value);
+		});
+
+		$('#playPauseButton').click(function(){
+			if (self.autoPlay)
+			{
+				self.autoPlay = false;
+				$(this).val('Play');
+			}
+			else
+			{
+				self.autoPlay = true;
+				$(this).val('Pause');
+				setNextDataValue();
+			}
 		});
 	}
 
@@ -78,12 +93,14 @@ function MapView()
 	{
 		self.loading.show();
 		$('#' + self.containerID).css('opacity', 0.5);
+		$('#playPauseButton').hide();
 	}
 
 	function hideLoading()
 	{
 		self.loading.hide();
 		$('#' + self.containerID).css('opacity', 1.0);
+		$('#playPauseButton').show();
 	}
 
 	function loadDataFromServer(map, sourceID)
@@ -142,6 +159,7 @@ function MapView()
 	function loadData(data, dataRange)
 	{
 		log(dataRange);
+		$('#sliderValue').text(dataRange);
 
 		showLoading();
 		destroyAllMarkers();
@@ -213,10 +231,11 @@ function MapView()
 
 				var value = MathUtils.Map(parseFloat(data.value), self.dataMin, self.dataMax, 0, 100);
 				
-				// Create 3d box
+				// Create 3D box
 				var point = MapUtils.GetPointFromBounds(self.map, bounds);
-				createBox(data.id, point.x, point.y, value / 4);
+				createBox(data.locationId, point.x, point.y, value / 4);
 				
+				// Create 2D box
 				var marker2D = addMarker2D(map, bounds, value);
 				addMarkerListeners(marker2D, data);
 				markers2D.push(marker2D);
