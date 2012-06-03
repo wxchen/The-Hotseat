@@ -11,8 +11,11 @@ function init()
 {
 	// Set height
 	$('#loading').css('height', window.innerHeight);
-	$('#mapCanvas').css('height', window.innerHeight);
+	$('#map').css('height', window.innerHeight);
+
+	var sliderView = new SliderView();
+	sliderView.init('slider');
 
 	var mapView = new MapView();
-	mapView.init('mapCanvas');
+	mapView.init('map', sliderView);
 }
