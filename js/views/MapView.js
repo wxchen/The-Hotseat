@@ -236,9 +236,9 @@ function MapView()
 				createBox(data.locationId, point.x, point.y, value / 30);
 				
 				// Create 2D box
-				var marker2D = addMarker2D(map, bounds, value);
-				addMarkerListeners(marker2D, data);
-				markers2D.push(marker2D);
+				//var marker2D = addMarker2D(map, bounds, value);
+				//addMarkerListeners(marker2D, data);
+				//markers2D.push(marker2D);
 				markersAdded++;
 			}
 		});
