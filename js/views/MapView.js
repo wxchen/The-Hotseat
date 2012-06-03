@@ -233,7 +233,7 @@ function MapView()
 				
 				// Create 3D box
 				var point = MapUtils.GetPointFromBounds(self.map, bounds);
-				createBox(data.locationId, point.x, point.y, value / 4);
+				createBox(data.locationId, point.x, point.y, value / 30);
 				
 				// Create 2D box
 				var marker2D = addMarker2D(map, bounds, value);
