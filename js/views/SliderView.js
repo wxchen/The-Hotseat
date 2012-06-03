@@ -54,7 +54,7 @@ function SliderView()
 		{
 			min: 0,
 			max: 100,
-			slide: function(event, ui) {
+			change: function(event, ui) {
 				self.slider.trigger(Events.SLIDER_UPDATED, [ui.value]);
 			}
 		});
