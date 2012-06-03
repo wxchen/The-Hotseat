@@ -3,14 +3,22 @@ require_once('../config.php');
 
 $sourceId = $_REQUEST['sourceid'];
 
-$stmt = $pdo->prepare('select 
+$stmt = $pdo->prepare('
+
+SELECT 
 	location_value.*,
 	location.name,
 	location.latitude,
 	location.longitude
-	from location_value 
-	inner join location ON location_value.locationId = location.id where sourceId = ?
-	order by location_value.valueDate');
+FROM
+	location_value INNER JOIN location ON location_value.locationId = location.id
+WHERE
+	sourceId = ? AND
+	'.($sourceId == 231 ? 'mod(location.id,10) = 0 AND' : '').'
+	valueDate > "1900-00-00"
+ORDER BY
+	location_value.valueDate
+');
 $stmt->execute(array($sourceId));
 
 $locations = array();
