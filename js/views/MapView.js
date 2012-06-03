@@ -62,7 +62,6 @@ function MapView()
 		var markerToolTip = $('.markerToolTip');
 		markerToolTip.on('mouseover', function(event) {
 			event.stopPropagation();
-			log('stop');
 		});
 
 		return markerToolTip;
@@ -248,13 +247,12 @@ function MapView()
 
 			var markerWorldNEPoint = self.map.getProjection().fromLatLngToPoint(markerBounds.getNorthEast());
 			var markerWorldSWPoint = self.map.getProjection().fromLatLngToPoint(markerBounds.getSouthWest());
-			var markerHeight = Math.abs(markerWorldNEPoint.y - markerWorldSWPoint.y) * scale;
-			log(markerHeight);
+			var markerHeight = Math.abs(markerWorldSWPoint.y - markerWorldNEPoint.y) * scale;
 
 			// Move the tool tip above the marker
 			point.x -= parseInt(self.markerToolTip.css('width'), 10) / 2;
-			//point.y -= (parseInt(self.markerToolTip.css('height'), 10) + markerHeight / 2);
-			point.y -= parseInt(self.markerToolTip.css('height'), 10);
+			point.y -= (parseInt(self.markerToolTip.css('height'), 10) + markerHeight / 2 + 8);
+			log((parseInt(self.markerToolTip.css('height'), 10) + markerHeight / 2));
 
 			// Display the marker tooltip
 			self.markerToolTip.css({left: point.x, top: point.y});
