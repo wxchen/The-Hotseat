@@ -4,17 +4,35 @@ function SliderView()
 	
 	var containerID;
 	var slider;
-
 	var map;
+
+	var min;
+	var max;
 
 	SliderView.prototype.init = function(containerID)
 	{
 		init(containerID);
 	}
 
-	SliderView.prototype.setRange = function(start, end)
+	SliderView.prototype.setRange = function(min, max)
 	{
-		setRange(start, end);
+		setRange(min, max);
+	}
+
+	SliderView.prototype.setValue = function(value)
+	{
+		setValue(value);
+	}
+
+	SliderView.prototype.setNextValue = function()
+	{
+		if (self.slider.slider('value') == self.max)
+		{
+			setValue(self.min);	
+			return;
+		}
+
+		setValue(self.slider.slider('value') + 1);
 	}
 
 	SliderView.prototype.onSliderUpdate = function(callbackFunction)
@@ -42,12 +60,24 @@ function SliderView()
 		});
 	}
 
-	function setRange(start, end)
+	function setRange(min, max)
+	{
+		self.min = min;
+		self.max = max;
+
+		self.slider.slider({
+			min: min,
+			max: max
+		});
+	}
+
+	function setValue(value)
 	{
 		self.slider.slider({
-			min: start,
-			max: end
+			value: value
 		});
+
+		self.slider.trigger(Events.SLIDER_UPDATED, [value]);
 	}
 
 	function onSliderUpdate(callbackFunction)

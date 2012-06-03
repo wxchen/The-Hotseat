@@ -1,5 +1,6 @@
 function MapView()
 {
+	// THIS IS WRONG - SELF
 	var self = this;
 	
 	var containerID;
@@ -17,6 +18,9 @@ function MapView()
 
 	var markers2D;
 
+	var autoPlay = true;
+	var autoPlayDelay = 500;
+
 	MapView.prototype.init = function(containerID, sliderView)
 	{
 		init(containerID, sliderView);
@@ -26,6 +30,9 @@ function MapView()
 	{
 		self.containerID = containerID;
 		self.sliderView = sliderView;
+
+		self.autoPlay = false;
+		self.autoPlayDelay = 500;
 
 		initGUI();
 		loadDataFromServer(map, DEFAULT_SOURCE_ID);
@@ -137,11 +144,22 @@ function MapView()
 		log(dataRange);
 
 		showLoading();
-
 		destroyAllMarkers();
-		drawMarkers(self.map, data, dataRange);
-		
+		drawMarkers(self.map, data, dataRange);		
 		hideLoading();
+
+		if (self.autoPlay)
+		{
+			setNextDataValue();
+		}
+	}
+
+	function setNextDataValue()
+	{
+		console.log('autoplay');
+		setTimeout(function(){
+			self.sliderView.setNextValue();
+		}, self.autoPlayDelay)
 	}
 
 	function destroyAllMarkers()
@@ -195,9 +213,9 @@ function MapView()
 
 				var value = MathUtils.Map(parseFloat(data.value), self.dataMin, self.dataMax, 0, 100);
 
-				var marker = addMarker(map, bounds, value);
-				addMarkerListeners(marker, data);
-				markers2D.push(marker);
+				var marker2D = addMarker2D(map, bounds, value);
+				addMarkerListeners(marker2D, data);
+				markers2D.push(marker2D);
 				markersAdded++;
 			}
 		});
@@ -208,7 +226,7 @@ function MapView()
 	/**
 	 * value is 0-100
 	 */
-	function addMarker(map, bounds, value)
+	function addMarker2D(map, bounds, value)
 	{
 		var hue = MathUtils.Map(value, 0, 100, 60, 0);
 		var colour = ColourUtils.HSVToRGB(hue, 100, 100);
