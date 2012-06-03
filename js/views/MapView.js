@@ -100,7 +100,7 @@ function MapView()
 	{
 		self.loading.hide();
 		$('#' + self.containerID).css('opacity', 1.0);
-		$('#playPauseButton').show();
+		//$('#playPauseButton').show();
 	}
 
 	function loadDataFromServer(map, sourceID)
