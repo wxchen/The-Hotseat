@@ -3,6 +3,31 @@ require_once '../config.php';
 
 $sourceId = 231;
 
+//// PHASE 2 CODE ////
+
+$zipFiles = glob('data/'.$sourceId.'/full/*.zip');
+
+if ($zipFiles)
+{
+	foreach($zipFiles as $zipFile)
+	{
+		$folderName = str_replace(array('data/'.$sourceId.'/full/','.zip'),'',$zipFile);
+		echo (shell_exec('unzip "'.$zipFile.'" -d '.$folderName));
+		unlink($zipFile);
+	}
+}
+
+
+
+
+
+
+
+
+
+//// PHASE 2 CODE ////
+
+/*
 $statement = $pdo->prepare("SELECT * FROM location WHERE sourceId = ?");
 $statement->execute(array($sourceId));
 $locations = $statement->fetchAll();
@@ -18,15 +43,17 @@ foreach($locations as $location)
 
 	$warmUrl = str_replace($bit2,$bit1,$actualUrl);
 	$warmUrl = str_replace($bit3,'',$warmUrl);
-	$string = file_get_contents($warmUrl);
 
-	$string = file_get_contents($actualUrl);
+//	$string = file_get_contents($warmUrl);
+//	$string = file_get_contents($actualUrl);
 
-	file_put_contents('data/'.$sourceId.'/full/'.base64_encode($actualUrl),$string);
-	echo "Downloading $actualUrl\n";
+//	file_put_contents('data/'.$sourceId.'/full/'.base64_encode($actualUrl),$string);
+
+	echo "<a href='$warmUrl'>$warmUrl</a>\n";
+	echo "<a href='$actualUrl'>$actualUrl</a>\n";
 }
 
-
+*/
 
 
 
