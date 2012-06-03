@@ -1,0 +1,11 @@
+Product code,Station Number,Year,Jan,Feb,Mar,Apr,May,Jun,Jul,Aug,Sep,Oct,Nov,Dec,Annual
+IDCJAC0001,015665,1995,null,null,null,null,null,null,null,null,0.0,3.4,24.3,null,null
+IDCJAC0001,015665,1996,null,null,0.1,75.0,1.5,0.0,3.0,0.0,null,null,null,null,null
+IDCJAC0001,015665,1997,142.6,null,0.0,0.0,37.0,0.0,0.0,0.0,3.2,4.2,10.0,89.0,null
+IDCJAC0001,015665,1998,14.7,13.2,0.0,62.5,0.0,0.0,13.4,0.7,16.3,55.0,23.1,null,null
+IDCJAC0001,015665,2000,null,null,null,null,null,null,null,null,null,null,68.4,162.4,null
+IDCJAC0001,015665,2001,149.6,281.7,292.2,0.0,0.0,12.2,23.2,0.0,2.2,71.5,67.3,null,null
+IDCJAC0001,015665,2002,35.4,181.6,14.1,null,null,0.0,0.0,0.0,0.0,null,13.0,12.4,null
+IDCJAC0001,015665,2003,85.8,44.2,26.0,2.6,0.0,0.0,0.0,0.0,1.2,1.0,38.4,207.8,407.0
+IDCJAC0001,015665,2004,149.4,285.6,45.6,1.0,31.8,2.6,0.0,0.0,0.0,20.9,15.0,13.2,565.1
+IDCJAC0001,015665,2005,12.0,37.0,18.0,0.0,0.0,null,null,null,null,null,null,null,null

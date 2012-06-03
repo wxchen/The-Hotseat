@@ -1,0 +1,5 @@
+Product code,Station Number,Year,Jan,Feb,Mar,Apr,May,Jun,Jul,Aug,Sep,Oct,Nov,Dec,Annual
+IDCJAC0001,01032,1997,null,null,null,null,null,null,null,0.0,0.1,0.0,null,null,null
+IDCJAC0001,01032,1998,null,null,null,null,null,null,null,null,2.4,11.9,104.3,null,null
+IDCJAC0001,01032,1999,305.3,396.2,null,30.6,null,null,null,null,null,48.8,122.5,261.8,null
+IDCJAC0001,01032,2000,669.8,null,309.2,37.8,null,null,null,null,null,null,null,null,null
