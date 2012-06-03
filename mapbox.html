@@ -90,6 +90,7 @@ body {
 	
 		<script src="Sprite3D.js" type="text/javascript"></script>
 		<script type="text/javascript">
+			var SHOW_2D_MARKERS = false;
 	
 	
 	// Add table
@@ -270,12 +271,14 @@ body {
 			// Add a new box		
 			var boxSize = 10;
 			var z = height * boxSize / 2 + 2;
-			
+			//var box = Sprite3D.box( boxSize, boxSize, boxSize, "#box" + index, '#003300');
 			var box = Sprite3D.box( boxSize, boxSize, boxSize, ".box1", '#003300');
 			box.rotation( 0, 0, 0);
 			box.position( x, y, z);
 			box.scale(1, 1, height);
-			
+
+			//$("#box" + index + ' div' ).css('background-color', '#00ff00');
+
 			box.update();
 			
 			var boxWrap = new BoxWrap(box, x, y, z);
