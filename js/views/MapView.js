@@ -1,5 +1,6 @@
 function MapView()
 {
+	// THIS IS WRONG - SELF
 	var self = this;
 	
 	var containerID;
@@ -12,8 +13,13 @@ function MapView()
 	var data;
 	var dataRangeStart;
 	var dataRangeEnd;
+	var dataMin;
+	var dataMax;
 
 	var markers2D;
+
+	var autoPlay;
+	var autoPlayDelay;
 
 	MapView.prototype.init = function(containerID, sliderView)
 	{
@@ -25,6 +31,9 @@ function MapView()
 		self.containerID = containerID;
 		self.sliderView = sliderView;
 
+		self.autoPlay = false;
+		self.autoPlayDelay = 100;
+
 		initGUI();
 		loadDataFromServer(map, DEFAULT_SOURCE_ID);
 	}
@@ -35,8 +44,23 @@ function MapView()
 		self.map = initMap();
 		self.markerToolTip = initMarkerToolTip();
 		self.sliderView.onSliderUpdate(function(event, value) {
-			console.log(value);
+			log(value);
+			$('#sliderValue').text(value);
 			loadData(self.data, value);
+		});
+
+		$('#playPauseButton').click(function(){
+			if (self.autoPlay)
+			{
+				self.autoPlay = false;
+				$(this).val('Play');
+			}
+			else
+			{
+				self.autoPlay = true;
+				$(this).val('Pause');
+				setNextDataValue();
+			}
 		});
 	}
 
@@ -45,7 +69,7 @@ function MapView()
 		var mapLatLng = new google.maps.LatLng(-26, 133);
 
 		var mapOptions = {
-			zoom: 5,
+			zoom: 4,
 			center: mapLatLng,
 			mapTypeId: google.maps.MapTypeId.TERRAIN
 		};
@@ -60,15 +84,28 @@ function MapView()
 		var markerToolTip = $('.markerToolTip');
 		markerToolTip.on('mouseover', function(event) {
 			event.stopPropagation();
-			console.log('stop');
 		});
 
 		return markerToolTip;
 	}
 
-	function loadDataFromServer(map, sourceID)
+	function showLoading()
 	{
 		self.loading.show();
+		$('#' + self.containerID).css('opacity', 0.5);
+		$('#playPauseButton').hide();
+	}
+
+	function hideLoading()
+	{
+		self.loading.hide();
+		$('#' + self.containerID).css('opacity', 1.0);
+		$('#playPauseButton').show();
+	}
+
+	function loadDataFromServer(map, sourceID)
+	{
+		showLoading();
 		
 		$.getJSON(
 			JSON_URL,  
@@ -80,23 +117,40 @@ function MapView()
 				// Determine data range
 				if (json.length == 0)
 				{
-					dataRangeStart = 0;
-					dataRangeEnd = 0;
+					self.dataRangeStart = 0;
+					self.dataRangeEnd = 0;
 				}
 				else
 				{
-					dataRangeStart = parseInt(json[0].valueDate.split('-')[0], 10);   // Get start year
-					dataRangeEnd = parseInt(json[json.length - 1].valueDate.split('-')[0], 10);   // Get end year
-					console.log('Range: ' + dataRangeStart + ', ' + dataRangeEnd);
+					self.dataRangeStart = parseInt(json[0].valueDate.split('-')[0], 10);   // Get start year
+					self.dataRangeEnd = parseInt(json[json.length - 1].valueDate.split('-')[0], 10);   // Get end year
+					log('Date Range: ' + self.dataRangeStart + ', ' + self.dataRangeEnd);
 				}
+
+				// Determine min and max value
+				self.dataMin = 99999999;
+				self.dataMax = self.dataMin * -1;
+				$(json).each(function(index) {
+					var data = this;
+					if (data.value < self.dataMin)
+					{
+						self.dataMin = parseFloat(data.value);
+					}
+
+					if (data.value > self.dataMax)
+					{
+						self.dataMax = parseFloat(data.value);
+					}
+				});
+				log('Value Range: ' + self.dataMin + ', ' + self.dataMax);
 				
 				// Reset the slider
-				self.sliderView.setRange(dataRangeStart, dataRangeEnd);
+				self.sliderView.setRange(self.dataRangeStart, self.dataRangeEnd);
 
 				if (json.length > 0)
 				{
 					// Load the first set of data
-					loadData(self.data, dataRangeStart);
+					loadData(self.data, self.dataRangeStart);
 				}
 			}  
 		);
@@ -104,12 +158,26 @@ function MapView()
 
 	function loadData(data, dataRange)
 	{
-		console.log(dataRange);
+		log(dataRange);
+		$('#sliderValue').text(dataRange);
 
-		self.loading.show();
+		showLoading();
 		destroyAllMarkers();
-		drawMarkers(self.map, data, dataRange);
-		self.loading.hide();
+		drawMarkers(self.map, data, dataRange);		
+		hideLoading();
+
+		if (self.autoPlay)
+		{
+			setNextDataValue();
+		}
+	}
+
+	function setNextDataValue()
+	{
+		console.log('autoplay');
+		setTimeout(function(){
+			self.sliderView.setNextValue();
+		}, self.autoPlayDelay)
 	}
 
 	function destroyAllMarkers()
@@ -151,7 +219,7 @@ function MapView()
 
 			if (year == dataRange)
 			{
-				//console.log(data.valueDate);
+				//log(data.valueDate);
 
 				var southWestLatLng = new google.maps.LatLng(
 					parseFloat(data.latitude) - ((MARKER_SIZE * MAP_ASPECT_RATIO) / 2),
@@ -160,23 +228,28 @@ function MapView()
 					parseFloat(data.latitude) + ((MARKER_SIZE * MAP_ASPECT_RATIO) / 2),
 					parseFloat(data.longitude) + (MARKER_SIZE / 2));
 				var bounds = new google.maps.LatLngBounds(southWestLatLng, northEastLatLng);
-				
-				var value = MathUtils.Map(parseFloat(data.value), -50, 50, 0, 100);
 
-				var marker = addMarker(map, bounds, value);
-				addMarkerListeners(marker);
-				markers2D.push(marker);
+				var value = MathUtils.Map(parseFloat(data.value), self.dataMin, self.dataMax, 0, 100);
+				
+				// Create 3D box
+				var point = MapUtils.GetPointFromBounds(self.map, bounds);
+				createBox(data.locationId, point.x, point.y, value / 30);
+				
+				// Create 2D box
+				var marker2D = addMarker2D(map, bounds, value);
+				addMarkerListeners(marker2D, data);
+				markers2D.push(marker2D);
 				markersAdded++;
 			}
 		});
 
-		console.log(markersAdded + ' markers added');
+		log(markersAdded + ' markers added');
 	}
 
 	/**
 	 * value is 0-100
 	 */
-	function addMarker(map, bounds, value)
+	function addMarker2D(map, bounds, value)
 	{
 		var hue = MathUtils.Map(value, 0, 100, 60, 0);
 		var colour = ColourUtils.HSVToRGB(hue, 100, 100);
@@ -198,37 +271,36 @@ function MapView()
 		return marker;
 	}
 
-	function addMarkerListeners(marker)
+	function addMarkerListeners(marker, data)
 	{
 		// Add tool tip for each marker
 		google.maps.event.addListener(marker, 'mouseover', function(event) {
 			event.stop();
 
-			var scale = Math.pow(2, map.getZoom());
+			var scale = Math.pow(2, self.map.getZoom());
 			var markerBounds = this.getBounds();
-			var point = MapUtils.GetPointFromBounds(map, markerBounds);
+			var point = MapUtils.GetPointFromBounds(self.map, markerBounds);
 
-			var markerWorldNEPoint = map.getProjection().fromLatLngToPoint(markerBounds.getNorthEast());
-			var markerWorldSWPoint = map.getProjection().fromLatLngToPoint(markerBounds.getSouthWest());
-			var markerHeight = Math.abs(markerWorldNEPoint.y - markerWorldSWPoint.y) * scale;
-			console.log(markerHeight);
+			var markerWorldNEPoint = self.map.getProjection().fromLatLngToPoint(markerBounds.getNorthEast());
+			var markerWorldSWPoint = self.map.getProjection().fromLatLngToPoint(markerBounds.getSouthWest());
+			var markerHeight = Math.abs(markerWorldSWPoint.y - markerWorldNEPoint.y) * scale;
 
 			// Move the tool tip above the marker
-			point.x -= parseInt(markerToolTip.css('width'), 10) / 2;
-			//point.y -= (parseInt(markerToolTip.css('height'), 10) + markerHeight / 2);
-			point.y -= parseInt(markerToolTip.css('height'), 10);
+			point.x -= parseInt(self.markerToolTip.css('width'), 10) / 2;
+			point.y -= (parseInt(self.markerToolTip.css('height'), 10) + markerHeight / 2 + 8);
+			log((parseInt(self.markerToolTip.css('height'), 10) + markerHeight / 2));
 
 			// Display the marker tooltip
-			markerToolTip.css({left: point.x, top: point.y});
-			markerToolTip.text(data.name);
+			self.markerToolTip.css({left: point.x, top: point.y});
+			self.markerToolTip.html(data.name + '<br/>(' + data.value + ')');
 		});
 
 		//
 		google.maps.event.addListener(marker, 'mouseout', function(event) {
 			event.stop();
 			// Hide the marker tooltip
-			markerToolTip.css({left: -1000, top: -1000});
-			markerToolTip.text('');
+			self.markerToolTip.css({left: -1000, top: -1000});
+			self.markerToolTip.html('');
 		});
 	}
 }
