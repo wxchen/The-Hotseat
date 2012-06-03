@@ -97,6 +97,7 @@ function MapView()
 				{
 					dataRangeStart = parseInt(json[0].valueDate.split('-')[0], 10);   // Get start year
 					dataRangeEnd = parseInt(json[json.length - 1].valueDate.split('-')[0], 10);   // Get end year
+					console.log(dataRangeStart + ', ' + dataRangeEnd);
 				}
 
 				// Reset the slider
@@ -134,11 +135,18 @@ function MapView()
 
 	function drawMarkers(map, locationData, dataRange)
 	{
+		console.log(dataRange);
+		
 		markers2D = [];
 		var rangeFound = false;
 		$(locationData).each(function(index) {
 			
 			var data = this;
+			if (data.latitude > 0)
+			{
+				data.latitude *= -1;
+			}
+
 			var year = data.valueDate.split('-')[0];
 
 			// Check if we have hit the start of the data range
@@ -155,7 +163,7 @@ function MapView()
 
 			if (year == dataRange)
 			{
-				console.log(data.valueDate);
+				//console.log(data.valueDate);
 
 				var southWestLatLng = new google.maps.LatLng(
 					parseFloat(data.latitude) - ((MARKER_SIZE * MAP_ASPECT_RATIO) / 2),
